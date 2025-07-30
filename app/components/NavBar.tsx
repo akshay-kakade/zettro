@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 const NavBar = () => {
   return (
     <nav className='navbar'>
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-0.5">
           <img src="/logo.png" alt="logo" height={50} width={50} className="inline-block" />
           <p className="text-2xl font-bold text-gradient">ZETTRO</p>
         </Link>
@@ -14,7 +14,6 @@ const NavBar = () => {
         >
           Upload Resume
         </Link>
-
     </nav>
   )
 }
