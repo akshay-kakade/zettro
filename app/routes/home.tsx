@@ -29,8 +29,12 @@ export default function Home() {
     <NavBar />
   <section className="main-section">
     <div className="page-headig py-16 text-center">
-      <h1>Track Your Application and Resume Ratings</h1>
-      <h2 className="text-center">Review your submissions and check AI-Powered feedback.</h2>
+      <h1>Track Resume Performance Across ATS Filters</h1>
+     <h2 className="text-center">
+  Uncover AI Insights to Strengthen Every Submission
+  Analyze Job Matches. Improve Outreach. <br /> Stand Out.
+  Track Growth. Polish Your Resume. Secure Your Future.
+</h2>
     </div>
     
  
