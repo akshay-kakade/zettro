@@ -16,6 +16,7 @@ const Resume = () => {
   const [imageUrl, setImageUrl] = useState('')
   const [resumeUrl, setResumeUrl] = useState('')
   const [feedback, setFeedback] = useState<Feedback | null>(null)
+  const [notFound, setNotFound] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -26,25 +27,40 @@ const Resume = () => {
 
   useEffect(() => {
     const loadResume = async () => {
+      console.log('Loading resume', id)
       const resume = await kv.get(`resume:${id}`)
-      if (!resume) return
+      if (!resume) {
+        console.log('Resume record not found in kv')
+        setNotFound(true)
+        return
+      }
 
       const data = JSON.parse(resume)
+      console.log('Resume data loaded', data)
 
       const resumeBlob = await fs.read(data.resumePath)
-      if (!resumeBlob) return
+      if (!resumeBlob) {
+        console.log('Resume PDF file not found in fs', data.resumePath)
+        setNotFound(true)
+        return
+      }
 
       const pdfBlob = new Blob([resumeBlob], { type: 'application/pdf' })
       const resumeUrl = URL.createObjectURL(pdfBlob)
       setResumeUrl(resumeUrl)
 
       const imageBlob = await fs.read(data.imagePath)
-      if (!imageBlob) return
+      if (!imageBlob) {
+        console.log('Resume image file not found in fs', data.imagePath)
+        setNotFound(true)
+        return
+      }
 
       const imageUrl = URL.createObjectURL(imageBlob)
       setImageUrl(imageUrl)
 
       setFeedback(data.feedback)
+      setNotFound(false)
       console.log({ resumeUrl, imageUrl, feedback: data.feedback })
     }
 
@@ -62,7 +78,7 @@ const Resume = () => {
 
       <div className='flex flex-row w-full max-lg:flex-col-reverse'>
         <section className='feedback-section bg-[url(/images/bg-small.svg)] bg-cover h-[100vh] sticky top-0 items-center justify-center'>
-          {imageUrl && resumeUrl && (
+          {imageUrl && resumeUrl && !notFound && (
             <div className='animate-in fade-in duration-1000 gradient-border max-sm:m-0 h-[90%] max-wxl:h-fit w-fit '>
               <a href={resumeUrl} target='_blank' rel='noopener noreferrer'>
                 <img
@@ -79,7 +95,14 @@ const Resume = () => {
         <section className='feedback-section'>
           <h2 className='text-4xl !text-black font-bold'>Resume Review</h2>
 
-          {feedback ? (
+          {notFound ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <img src="/icons/warning.svg" alt="Not found" className="w-12 h-12 mb-2" />
+              <h3 className="text-xl font-semibold text-red-600">Resume not found</h3>
+              <p className="text-gray-600 text-center max-w-md">This resume does not exist or has been deleted. If you deleted all resumes, you will need to upload a new one to see a review.</p>
+              <Link to="/upload" className="primary-button mt-4">Upload New Resume</Link>
+            </div>
+          ) : feedback ? (
             <div className='flex flex-col gap-8 animate-in fade-in duration-1000'>
               <Summary feedback={feedback} />
               <ATS score={feedback.ATS.score || 0 } suggestions={feedback.ATS.tips || []} />
